@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>TODO LIST</title>
+	<meta charset="utf-8">
+	<link href="http://cdn.bootcss.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+<div class="container">
+	<div class="row">
+		<div class="well" id='todo'>
+			<nav class="navbar navbar-default" role="navigation">
+				<div class="container-fluid">
+					<div class="navbar-header">
+						<a href="#" class="navbar-brand" style="color: #805adc;">TODO LIST</a>
+					</div>
+					<ul class="nav navbar-nav navbar-right">
+						<li><a href="#"><span class="glyphicon glyphicon-user"></span>{{ username }}</a></li>
+						<li><a href="/logout/"><span class="glyphicon glyphicon-log-out"></span>退出</a></li>
+					</ul>
+				</div>
+			</nav>
+			<div class="panel-group" id="accordion">
+				{% for temp in List %}
+				<div class="panel panel-default">
+					<div class="panel-heading">
+						<h4 class="panel-title">
+							<a data-toggle="collapse" data-parent="#accordion" href="#collapse{{ temp.id }}" id="title{{ temp.id }}">
+								{{ temp.title }}
+							</a>
+							<div style="display: inline;float: right;" class="dropdown">
+								<a href="#" data-toggle="dropdown" data-hover="dropdown" class="drapdown-toggle glyphicon glyphicon-chevron-down" style="font-size: 10px;"></a>
+								<ul class="dropdown-menu" role="menu" aria-labelledby="dropdownMenu1">
+									<li role="presentation">
+											<script type="text/javascript">
+												function editInfo(){
+													var title = document.getElementById("title{{ temp.id }}").innerText;
+													var todo = document.getElementById("todo{{ temp.id }}").innerText;
+													$('#InputId').val(title);
+													$('#textInput').val(todo);
+													$('#myModal2').modal('show');
+												}
+											</script>
+										<a onClick="editInfo()" href="javascript:void(0)" role="menuitem" tabindex="-1" class="glyphicon glyphicon-edit text-center" style="border-bottom: 2px;">&nbsp;编辑</a>
+									</li>
+									<li role="presentation">
+										<a href="/delete/?list_id={{ temp.id }}" role="menuitem" tabindex="-1" class="glyphicon glyphicon-trash text-center">&nbsp;删除</a>
+									</li>
+								</ul>
+							</div>
+						</h4>
+					</div>
+				<div id="collapse{{ temp.id }}" class="panel-collapse collapse">
+					<div class="panel-body" id="todo{{ temp.id }}">
+						{{ temp.todo }}
+					</div>
+				</div>
+			</div>
+			{% endfor %}
+			</div>
+			<a class="btn btn-success" href="#myModal" roel="button" data-toggle="modal">
+				<span class="glyphicon glyphicon-plus"></span> ADD
+			</a>
+		</div>
+	</div>
+</div>
+<div id="myModal" class="modal fade" tabindex="-1" role="dialog" aria-labeledby="myModalLabel" aria-hidden="true">
+	<div class="modal-dialog">
+	<div class="modal-content">
+	<div class="modal-header">
+		<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+		<h3 id="myModalLabel" style="color: #5cb85c;">添加事项</h3>
+	</div>
+	<form method="post" action="/addlist/">
+		{% csrf_token %}
+		<div class="modal-body">
+			<input type="text" name="title" class="form-control" placeholder="主题">
+			<br>
+			<textarea name="todo" class="form-control" required="required" style="height: 100px;"></textarea>
+		</div>
+		<div class="modal-footer">
+			<button class="btn" data-dismiss="modal" aria-hidden="true">Close</button>
+			<button class="btn btn-success" id="send" type="submit" >Save</button>
+		</div>
+	</form>
+	</div>
+	</div>
+</div>
+<div id="myModal2" class="modal fade" tabindex="-1" role="dialog" aria-labeledby="myModalLabel" aria-hidden="true">
+	<div class="modal-dialog">
+	<div class="modal-content">
+	<div class="modal-header">
+		<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+		<h3 id="myModalLabel2" style="color: #5cb85c;">编辑事项</h3>
+	</div>
+	<form method="post" id="commit">
+		{% csrf_token %}
+		<div class="modal-body">
+			<input type="text" name="title" class="form-control" placeholder="主题" id="InputId">
+			<br>
+			<textarea name="todo" class="form-control" required="required" style="height: 100px;" id="textInput"></textarea>
+		</div>
+		<div class="modal-footer">
+			<button class="btn" data-dismiss="modal" aria-hidden="true">Close</button>
+			<button class="btn btn-success" id="submit" type="submit" >Save</button>
+		</div>
+	</form>
+	</div>
+	</div>
+</div>
+<script src="http://cdn.bootcss.com/jquery/3.2.1/jquery.min.js"></script>
+<script src="http://cdn.bootcss.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+<script src="http://cdn.bootcss.com/bootstrap-hover-dropdown/2.0.10/bootstrap-hover-dropdown.min.js"></script>
+<script type="text/javascript">
+	$(document).ready(function(){
+		$.ajaxSetup({
+			data:{csrfmiddlewaretoken:'{{ csrf_token }}'},
+		});
+	$('#submit').onclick(function(){
+		var list_id = '{{ temp.id }}';
+		list_id = parseInt(list_id);
+		$.ajax({
+			type:'POST',
+			data:{list_id:list_id },
+			url:"/editlist/",
+			cache:false,
+			dataType:"html",
+		});
+	});
+	});
+</script>
+</body>
+</html>
